@@ -62,7 +62,8 @@ namespace VsQuest
             capi.Network.RegisterChannel("vsquest")
                 .RegisterMessageType<QuestAcceptedMessage>()
                 .RegisterMessageType<QuestCompletedMessage>()
-                .RegisterMessageType<QuestInfoMessage>().SetMessageHandler<QuestInfoMessage>(message => OnQuestInfoMessage(message, capi));
+                .RegisterMessageType<QuestInfoMessage>().SetMessageHandler<QuestInfoMessage>(message => OnQuestInfoMessage(message, capi))
+                .RegisterMessageType<ExecutePlayerCommandMessage>().SetMessageHandler<ExecutePlayerCommandMessage>(message => OnExecutePlayerCommand(message, capi));
         }
 
         public override void StartServerSide(ICoreServerAPI sapi)
@@ -72,7 +73,8 @@ namespace VsQuest
             sapi.Network.RegisterChannel("vsquest")
                 .RegisterMessageType<QuestAcceptedMessage>().SetMessageHandler<QuestAcceptedMessage>((player, message) => OnQuestAccepted(player, message, sapi))
                 .RegisterMessageType<QuestCompletedMessage>().SetMessageHandler<QuestCompletedMessage>((player, message) => OnQuestCompleted(player, message, sapi))
-                .RegisterMessageType<QuestInfoMessage>();
+                .RegisterMessageType<QuestInfoMessage>()
+                .RegisterMessageType<ExecutePlayerCommandMessage>();
 
             ActionRegistry.Add("despawnquestgiver", (api, message, byPlayer, args) => api.World.RegisterCallback(dt => api.World.GetEntityById(message.questGiverId).Die(EnumDespawnReason.Removed), int.Parse(args[0])));
             ActionRegistry.Add("playsound", (api, message, byPlayer, args) => api.World.PlaySoundFor(new AssetLocation(args[0]), byPlayer));
@@ -295,6 +297,20 @@ namespace VsQuest
         {
             new QuestSelectGui(capi, message.questGiverId, message.availableQestIds, message.activeQuests, Config).TryOpen();
         }
+
+        private void OnExecutePlayerCommand(ExecutePlayerCommandMessage message, ICoreClientAPI capi)
+        {
+            string command = message.Command;
+
+            if (command.StartsWith("."))
+            {
+                capi.TriggerChatMessage(command);
+            }
+            else
+            {
+                capi.SendChatMessage(command);
+            }
+        }
     }
 
     public class QuestConfig
@@ -328,5 +344,12 @@ namespace VsQuest
         public long questGiverId { get; set; }
         public List<string> availableQestIds { get; set; }
         public List<ActiveQuest> activeQuests { get; set; }
+    }
+
+    [ProtoContract]
+    public class ExecutePlayerCommandMessage
+    {
+        [ProtoMember(1)]
+        public string Command { get; set; }
     }
 }

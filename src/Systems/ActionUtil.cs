@@ -147,7 +147,7 @@ namespace VsQuest
             if (args.Length > 0)
             {
                 string command = string.Join(" ", args);
-                sapi.ChatCommands.ExecuteUnparsed(command, new TextCommandCallingArgs() { Caller = new Caller() { Player = byPlayer }, RawArgs = new CmdArgs(command) });
+                sapi.Network.GetChannel("vsquest").SendPacket(new ExecutePlayerCommandMessage() { Command = command }, byPlayer);
             }
         }
     }
