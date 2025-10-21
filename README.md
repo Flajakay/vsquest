@@ -66,6 +66,10 @@ Every quest in the config/quests/*.json can have the following attributes:
       * args: ["bowyer", "precise"] => adds the precise and the bowyer trait to the player
     * removetraits: removes the given list of traits from the player, but can not remove traits that are linked to the players class (eg. can not remove bowyer from hunter)
       * args: ["bowyer", "precise"] => removes the precise and the bowyer trait from the player
+    * servercommand: executes a server command from the console.
+      * args: ["say", "hello"] => executes "/say hello" from the server console.
+    * playercommand: executes a command from the player's perspective.
+      * args: ["emote", "wave"] => executes "/emote wave" as the player.
 
 To convert an entity to a questgiver it needs the questgiver behavior:
 * **quests**: list of quests the questgiver offers

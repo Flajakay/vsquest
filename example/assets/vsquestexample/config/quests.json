@@ -1,17 +1,30 @@
 [
-<<<<<<< HEAD
 
     {
         "id": "vsquestexample:testcommands",
         "cooldown": 1,
         "perPlayer": true,
         "onAcceptedActions": [
-            {
-                "id": "servercommand",
-                "args": [
-                    "stats"
-				]
-            }
+          {
+            "id": "servercommand",
+            "args": [
+              "stats"
+            ]
+          },
+          {
+            "id": "playercommand",
+            "args": [
+              "/time",
+              "set",
+              "day"
+            ]
+          },
+          {
+            "id": "playercommand",
+            "args": [
+              ".charsel"
+            ]
+          }
         ],
         "actionObjectives": [
             {
@@ -40,8 +53,6 @@
     },
 
 
-=======
->>>>>>> d87840c045c90c0779388144470903e8cd4b24ac
     {
         "id": "vsquestexample:quest1",
         "cooldown": 20,

@@ -89,6 +89,7 @@ namespace VsQuest
             ActionRegistry.Add("addtraits", ActionUtil.AddTraits);
             ActionRegistry.Add("removetraits", ActionUtil.RemoveTraits);
             ActionRegistry.Add("servercommand", ActionUtil.ServerCommand);
+            ActionRegistry.Add("playercommand", ActionUtil.PlayerCommand);
 
             sapi.Event.GameWorldSave += () => OnSave(sapi);
             sapi.Event.PlayerDisconnect += player => OnDisconnect(player, sapi);

@@ -141,6 +141,15 @@ namespace VsQuest
                 sapi.InjectConsole(command);
             }
         }
+
+        public static void PlayerCommand(ICoreServerAPI sapi, QuestMessage message, IServerPlayer byPlayer, string[] args)
+        {
+            if (args.Length > 0)
+            {
+                string command = string.Join(" ", args);
+                sapi.ChatCommands.ExecuteUnparsed(command, new TextCommandCallingArgs() { Caller = new Caller() { Player = byPlayer }, RawArgs = new CmdArgs(command) });
+            }
+        }
     }
 
 
