@@ -1,4 +1,47 @@
 [
+<<<<<<< HEAD
+
+    {
+        "id": "vsquestexample:testcommands",
+        "cooldown": 1,
+        "perPlayer": true,
+        "onAcceptedActions": [
+            {
+                "id": "servercommand",
+                "args": [
+                    "stats"
+				]
+            }
+        ],
+        "actionObjectives": [
+            {
+                "id": "hasAttribute",
+                "args": [
+                    "talkedto",
+                    "3"
+                ]
+            }
+        ],
+        "killObjectives": [],
+        "itemRewards": [
+            {
+                "itemCode": "game:gear-rusty",
+                "amount": 1
+            }
+        ],
+        "actionRewards": [
+            {
+                "id": "removeplayerattribute",
+                "args": [
+                    "talkedto"
+                ]
+            }
+        ]
+    },
+
+
+=======
+>>>>>>> d87840c045c90c0779388144470903e8cd4b24ac
     {
         "id": "vsquestexample:quest1",
         "cooldown": 20,

@@ -129,6 +129,18 @@ namespace VsQuest
             byPlayer.Entity.WatchedAttributes
                 .SetStringArray("extraTraits", traits.ToArray());
         }
+        public static void ServerCommand(ICoreServerAPI sapi, QuestMessage message, IServerPlayer byPlayer, string[] args)
+        {
+            if (args.Length > 0)
+            {
+                string command = string.Join(" ", args);
+                if (!command.StartsWith("/"))
+                {
+                    command = "/" + command;
+                }
+                sapi.InjectConsole(command);
+            }
+        }
     }
 
 

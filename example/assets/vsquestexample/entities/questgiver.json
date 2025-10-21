@@ -148,6 +148,12 @@
 			{
 				"code": "questgiver",
 				"quests": [
+<<<<<<< HEAD
+					"vsquestexample:testcommands"
+				],
+				"selectrandom": false,
+				"selectrandomcount": 1
+=======
 					"vsquestexample:quest1",
 					"vsquestexample:quest2",
 					"vsquestexample:kill1drifter",
@@ -159,6 +165,7 @@
 				],
 				"selectrandom": true,
 				"selectrandomcount": 4
+>>>>>>> d87840c045c90c0779388144470903e8cd4b24ac
 			}
 		]
 	},
