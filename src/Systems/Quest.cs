@@ -23,6 +23,8 @@ namespace VsQuest
     {
         public List<string> validCodes { get; set; }
         public int demand { get; set; }
+        public List<string> positions { get; set; }
+        public bool removeAfterFinished { get; set; }
     }
 
     public class ItemReward

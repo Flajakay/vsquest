@@ -1,269 +1,273 @@
 [
 
-    {
-        "id": "vsquestexample:testcommands",
-        "cooldown": 1,
-        "perPlayer": true,
-        "onAcceptedActions": [
-          {
-            "id": "servercommand",
-            "args": [
-              "stats"
-            ]
-          },
-          {
-            "id": "playercommand",
-            "args": [
-              "/time",
-              "set",
-              "day"
-            ]
-          },
-          {
-            "id": "playercommand",
-            "args": [
-              ".charsel"
-            ]
-          }
-        ],
-        "actionObjectives": [
-            {
-                "id": "hasAttribute",
-                "args": [
-                    "talkedto",
-                    "3"
-                ]
-            }
-        ],
-        "killObjectives": [],
-        "itemRewards": [
-            {
-                "itemCode": "game:gear-rusty",
-                "amount": 1
-            }
-        ],
-        "actionRewards": [
-            {
-                "id": "removeplayerattribute",
-                "args": [
-                    "talkedto"
-                ]
-            }
+  {
+    "id": "vsquestexample:testcommands",
+    "cooldown": 1,
+    "perPlayer": true,
+    "onAcceptedActions": [
+      {
+        "id": "servercommand",
+        "args": [
+          "stats"
         ]
-    },
+      },
+      {
+        "id": "playercommand",
+        "args": [
+          "/time",
+          "set",
+          "day"
+        ]
+      },
+      {
+        "id": "playercommand",
+        "args": [
+          ".charsel"
+        ]
+      }
+    ],
+    "blockPlaceObjectives": [
+      {
+        "validCodes": [
+          "cob-none"
+        ],
+        "demand": 2,
+        "positions": [
+          "67,111,-17",
+          "67,111,-16"
+        ],
+        "removeAfterFinished": true
+      }
+    ],
+    "killObjectives": [],
+    "itemRewards": [
+      {
+        "itemCode": "game:gear-rusty",
+        "amount": 1
+      }
+    ],
+    "actionRewards": [
+      {
+        "id": "removeplayerattribute",
+        "args": [
+          "talkedto"
+        ]
+      }
+    ]
+  },
 
 
-    {
-        "id": "vsquestexample:quest1",
-        "cooldown": 20,
-        "perPlayer": true,
-        "gatherObjectives": [
-            {
-                "validCodes": [
-                    "bonysoil"
-                ],
-                "demand": 1
-            }
+  {
+    "id": "vsquestexample:quest1",
+    "cooldown": 20,
+    "perPlayer": true,
+    "gatherObjectives": [
+      {
+        "validCodes": [
+          "bonysoil"
         ],
-        "killObjectives": [
-            {
-                "validCodes": [
-                    "drifter-normal"
-                ],
-                "demand": 2
-            }
+        "demand": 1
+      }
+    ],
+    "killObjectives": [
+      {
+        "validCodes": [
+          "drifter-normal"
         ],
-        "itemRewards": [
-            {
-                "itemCode": "game:gear-rusty",
-                "amount": 3
-            }
+        "demand": 2
+      }
+    ],
+    "itemRewards": [
+      {
+        "itemCode": "game:gear-rusty",
+        "amount": 3
+      }
+    ]
+  },
+  {
+    "id": "vsquestexample:quest2",
+    "cooldown": 25,
+    "perPlayer": true,
+    "gatherObjectives": [],
+    "killObjectives": [
+      {
+        "validCodes": [
+          "drifter-normal"
+        ],
+        "demand": 3
+      }
+    ],
+    "itemRewards": [
+      {
+        "itemCode": "game:gear-rusty",
+        "amount": 5
+      }
+    ]
+  },
+  {
+    "id": "vsquestexample:kill1drifter",
+    "cooldown": 20,
+    "perPlayer": true,
+    "killObjectives": [
+      {
+        "validCodes": [
+          "drifter-normal"
+        ],
+        "demand": 1
+      }
+    ],
+    "itemRewards": [
+      {
+        "itemCode": "game:gear-rusty",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "id": "vsquestexample:kill1deepdrifter",
+    "cooldown": 20,
+    "predecessor": "vsquestexample:kill1drifter",
+    "perPlayer": true,
+    "killObjectives": [
+      {
+        "validCodes": [
+          "drifter-deep"
+        ],
+        "demand": 1
+      }
+    ],
+    "itemRewards": [
+      {
+        "itemCode": "game:gear-rusty",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "id": "vsquestexample:talktootherguy",
+    "cooldown": 20,
+    "perPlayer": true,
+    "onAcceptedActions": [
+      {
+        "id": "acceptquest",
+        "args": [
+          "vsquestexample:talktome",
+          "3"
         ]
-    },
-    {
-        "id": "vsquestexample:quest2",
-        "cooldown": 25,
-        "perPlayer": true,
-        "gatherObjectives": [],
-        "killObjectives": [
-            {
-                "validCodes": [
-                    "drifter-normal"
-                ],
-                "demand": 3
-            }
-        ],
-        "itemRewards": [
-            {
-                "itemCode": "game:gear-rusty",
-                "amount": 5
-            }
+      }
+    ],
+    "actionObjectives": [
+      {
+        "id": "hasAttribute",
+        "args": [
+          "talkedto",
+          "3"
         ]
-    },
-    {
-        "id": "vsquestexample:kill1drifter",
-        "cooldown": 20,
-        "perPlayer": true,
-        "killObjectives": [
-            {
-                "validCodes": [
-                    "drifter-normal"
-                ],
-                "demand": 1
-            }
-        ],
-        "itemRewards": [
-            {
-                "itemCode": "game:gear-rusty",
-                "amount": 1
-            }
+      }
+    ],
+    "killObjectives": [],
+    "itemRewards": [
+      {
+        "itemCode": "game:gear-rusty",
+        "amount": 1
+      }
+    ],
+    "actionRewards": [
+      {
+        "id": "removeplayerattribute",
+        "args": [
+          "talkedto"
         ]
-    },
-    {
-        "id": "vsquestexample:kill1deepdrifter",
-        "cooldown": 20,
-        "predecessor": "vsquestexample:kill1drifter",
-        "perPlayer": true,
-        "killObjectives": [
-            {
-                "validCodes": [
-                    "drifter-deep"
-                ],
-                "demand": 1
-            }
-        ],
-        "itemRewards": [
-            {
-                "itemCode": "game:gear-rusty",
-                "amount": 1
-            }
+      }
+    ]
+  },
+  {
+    "id": "vsquestexample:talktome",
+    "cooldown": 20,
+    "perPlayer": true,
+    "itemRewards": [
+      {
+        "itemCode": "game:gear-rusty",
+        "amount": 1
+      }
+    ],
+    "actionRewards": [
+      {
+        "id": "addplayerattribute",
+        "args": [
+          "talkedto",
+          "3"
         ]
-    },
-    {
-        "id": "vsquestexample:talktootherguy",
-        "cooldown": 20,
-        "perPlayer": true,
-        "onAcceptedActions": [
-            {
-                "id": "acceptquest",
-                "args": [
-                    "vsquestexample:talktome",
-                    "3"
-                ]
-            }
-        ],
-        "actionObjectives": [
-            {
-                "id": "hasAttribute",
-                "args": [
-                    "talkedto",
-                    "3"
-                ]
-            }
-        ],
-        "killObjectives": [],
-        "itemRewards": [
-            {
-                "itemCode": "game:gear-rusty",
-                "amount": 1
-            }
-        ],
-        "actionRewards": [
-            {
-                "id": "removeplayerattribute",
-                "args": [
-                    "talkedto"
-                ]
-            }
+      },
+      {
+        "id": "playsound",
+        "args": [
+          "game:sounds/voice/saxophone"
         ]
-    },
-    {
-        "id": "vsquestexample:talktome",
-        "cooldown": 20,
-        "perPlayer": true,
-        "itemRewards": [
-            {
-                "itemCode": "game:gear-rusty",
-                "amount": 1
-            }
+      }
+    ]
+  },
+  {
+    "id": "vsquestexample:placeandbreak",
+    "cooldown": 20,
+    "perPlayer": true,
+    "blockPlaceObjectives": [
+      {
+        "validCodes": [
+          "bed-wood-*",
+          "bed-hay-*",
+          "bed-woodaged-*"
         ],
-        "actionRewards": [
-            {
-                "id": "addplayerattribute",
-                "args": [
-                    "talkedto",
-                    "3"
-                ]
-            },
-            {
-                "id": "playsound",
-                "args": [
-                    "game:sounds/voice/saxophone"
-                ]
-            }
+        "demand": 2
+      }
+    ],
+    "blockBreakObjectives": [
+      {
+        "validCodes": [
+          "bonysoil"
+        ],
+        "demand": 4
+      }
+    ],
+    "itemRewards": [
+      {
+        "itemCode": "game:gear-rusty",
+        "amount": 1
+      }
+    ]
+  },
+  {
+    "id": "vsquestexample:vanish",
+    "cooldown": -1,
+    "perPlayer": true,
+    "onAcceptedActions": [
+      {
+        "id": "completequest",
+        "args": []
+      }
+    ],
+    "actionRewards": [
+      {
+        "id": "spawnsmoke",
+        "args": []
+      },
+      {
+        "id": "despawnquestgiver",
+        "args": [
+          "0"
         ]
-    },
-    {
-        "id": "vsquestexample:placeandbreak",
-        "cooldown": 20,
-        "perPlayer": true,
-        "blockPlaceObjectives": [
-            {
-                "validCodes": [
-                    "bed-wood-*",
-                    "bed-hay-*",
-                    "bed-woodaged-*"
-                ],
-                "demand": 2
-            }
-        ],
-        "blockBreakObjectives": [
-            {
-                "validCodes": [
-                    "bonysoil"
-                ],
-                "demand": 4
-            }
-        ],
-        "itemRewards": [
-            {
-                "itemCode": "game:gear-rusty",
-                "amount": 1
-            }
+      },
+      {
+        "id": "spawnentities",
+        "args": [
+          "game:butterfly-commonbrimstone",
+          "game:butterfly-comma",
+          "game:butterfly-largewhite",
+          "game:butterfly-peacock",
+          "game:butterfly-smallheath",
+          "game:butterfly-bluepansy"
         ]
-    },
-    {
-        "id": "vsquestexample:vanish",
-        "cooldown": -1,
-        "perPlayer": true,
-        "onAcceptedActions": [
-            {
-                "id": "completequest",
-                "args": []
-            }
-        ],
-        "actionRewards": [
-            {
-                "id": "spawnsmoke",
-                "args": []
-            },
-            {
-                "id": "despawnquestgiver",
-                "args": [
-                    "0"
-                ]
-            },
-            {
-                "id": "spawnentities",
-                "args": [
-                    "game:butterfly-commonbrimstone",
-                    "game:butterfly-comma",
-                    "game:butterfly-largewhite",
-                    "game:butterfly-peacock",
-                    "game:butterfly-smallheath",
-                    "game:butterfly-bluepansy"
-                ]
-            }
-        ]
-    }
+      }
+    ]
+  }
 ]

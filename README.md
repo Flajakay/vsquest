@@ -24,6 +24,8 @@ Every quest in the config/quests/*.json can have the following attributes:
 * **blockPlaceObjectives**: list of blocks the player has place
   * **validCodes**: list of accepted block codes
   * **demand**: needed amount
+  * **positions**: (optional) list of coordinates where the blocks have to be placed. Each coordinate is an array of 3 integers (x, y, z).
+  * **removeAfterFinished**: (optional) if set to true, the placed blocks will be removed after the quest is completed.
 * **blockBreakObjectives**: list of blocks the player has break
   * **validCodes**: list of accepted block codes
   * **demand**: needed amount

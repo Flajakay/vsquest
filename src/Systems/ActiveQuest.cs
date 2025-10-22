@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ProtoBuf;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -14,28 +15,45 @@ namespace VsQuest
         public List<EventTracker> killTrackers { get; set; } = new List<EventTracker>();
         public List<EventTracker> blockPlaceTrackers { get; set; } = new List<EventTracker>();
         public List<EventTracker> blockBreakTrackers { get; set; } = new List<EventTracker>();
-        public void OnEntityKilled(string entityCode)
+        public void OnEntityKilled(string entityCode, IPlayer byPlayer)
         {
-            checkEventTrackers(killTrackers, entityCode);
+            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var quest = questSystem.QuestRegistry[questId];
+            checkEventTrackers(killTrackers, entityCode, null, quest.killObjectives);
         }
 
-        public void OnBlockPlaced(string blockCode)
+        public void OnBlockPlaced(string blockCode, int[] position, IPlayer byPlayer)
         {
-            checkEventTrackers(blockPlaceTrackers, blockCode);
+            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var quest = questSystem.QuestRegistry[questId];
+            checkEventTrackers(blockPlaceTrackers, blockCode, position, quest.blockPlaceObjectives);
         }
 
-        public void OnBlockBroken(string blockCode)
+        public void OnBlockBroken(string blockCode, int[] position, IPlayer byPlayer)
         {
-            checkEventTrackers(blockBreakTrackers, blockCode);
+            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var quest = questSystem.QuestRegistry[questId];
+            checkEventTrackers(blockBreakTrackers, blockCode, position, quest.blockBreakObjectives);
         }
 
-        private static void checkEventTrackers(List<EventTracker> trackers, string code)
+        private void checkEventTrackers(List<EventTracker> trackers, string code, int[] position, List<Objective> objectives)
         {
             foreach (var tracker in trackers)
             {
-                if (trackerMatches(tracker, code))
+                if (position == null)
                 {
-                    tracker.count++;
+                    if (trackerMatches(tracker, code))
+                    {
+                        tracker.count++;
+                    }
+                }
+                else
+                {
+                    var index = trackers.IndexOf(tracker);
+                    if (index != -1 && trackerMatches(objectives[index], tracker, code, position))
+                    {
+                        tracker.count++;
+                    }
                 }
             }
         }
@@ -52,15 +70,70 @@ namespace VsQuest
             return false;
         }
 
+        private static bool trackerMatches(Objective objective, EventTracker tracker, string code, int[] position)
+        {
+            if (objective.positions != null && objective.positions.Count > 0)
+            {
+                foreach (var candidate in objective.positions)
+                {
+                    var pos = candidate.Split(',').Select(int.Parse).ToArray();
+                    if (pos.Length == 3 && pos[0] == position[0] && pos[1] == position[1] && pos[2] == position[2])
+                    {
+                        foreach (var codeCandidate in objective.validCodes)
+                        {
+                            if (codeCandidate == code || codeCandidate.EndsWith("*") && code.StartsWith(codeCandidate.Remove(codeCandidate.Length - 1)))
+                            {
+                                tracker.placedPositions.Add(candidate);
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+            else
+            {
+                foreach (var candidate in tracker.relevantCodes)
+                {
+                    if (candidate == code || candidate.EndsWith("*") && code.StartsWith(candidate.Remove(candidate.Length - 1)))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         public bool isCompletable(IPlayer byPlayer)
         {
             var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
             var quest = questSystem.QuestRegistry[questId];
             var activeActionObjectives = quest.actionObjectives.ConvertAll<ActiveActionObjective>(objective => questSystem.ActionObjectiveRegistry[objective.id]);
             bool completable = true;
+
+            while (blockPlaceTrackers.Count < quest.blockPlaceObjectives.Count)
+            {
+                blockPlaceTrackers.Add(new EventTracker());
+            }
+            while (blockBreakTrackers.Count < quest.blockBreakObjectives.Count)
+            {
+                blockBreakTrackers.Add(new EventTracker());
+            }
+            while (killTrackers.Count < quest.killObjectives.Count)
+            {
+                killTrackers.Add(new EventTracker());
+            }
+
             for (int i = 0; i < quest.blockPlaceObjectives.Count; i++)
             {
-                completable &= quest.blockPlaceObjectives[i].demand <= blockPlaceTrackers[i].count;
+                if (quest.blockPlaceObjectives[i].positions != null && quest.blockPlaceObjectives[i].positions.Count > 0)
+                {
+                    completable &= quest.blockPlaceObjectives[i].positions.Count <= blockPlaceTrackers[i].placedPositions.Count;
+                }
+                else
+                {
+                    completable &= quest.blockPlaceObjectives[i].demand <= blockPlaceTrackers[i].count;
+                }
             }
             for (int i = 0; i < quest.blockBreakObjectives.Count; i++)
             {
@@ -89,6 +162,17 @@ namespace VsQuest
             foreach (var gatherObjective in quest.gatherObjectives)
             {
                 handOverItems(byPlayer, gatherObjective);
+            }
+            for (int i = 0; i < quest.blockPlaceObjectives.Count; i++)
+            {
+                if (quest.blockPlaceObjectives[i].removeAfterFinished && i < blockPlaceTrackers.Count)
+                {
+                    foreach (var posStr in blockPlaceTrackers[i].placedPositions)
+                    {
+                        var pos = posStr.Split(',').Select(int.Parse).ToArray();
+                        byPlayer.Entity.World.BlockAccessor.SetBlock(0, new Vintagestory.API.MathTools.BlockPos(pos[0], pos[1], pos[2]));
+                    }
+                }
             }
         }
 
@@ -197,5 +281,6 @@ namespace VsQuest
     {
         public List<string> relevantCodes { get; set; } = new List<string>();
         public int count { get; set; }
+        public List<string> placedPositions { get; set; } = new List<string>();
     }
 }

@@ -96,8 +96,8 @@ namespace VsQuest
             sapi.Event.GameWorldSave += () => OnSave(sapi);
             sapi.Event.PlayerDisconnect += player => OnDisconnect(player, sapi);
             sapi.Event.OnEntityDeath += (entity, dmgSource) => OnEntityDeath(entity, dmgSource, sapi);
-            sapi.Event.DidBreakBlock += (byPlayer, blockId, blockSel) => getPlayerQuests(byPlayer?.PlayerUID, sapi).ForEach(quest => quest.OnBlockBroken(sapi.World.GetBlock(blockId)?.Code.Path));
-            sapi.Event.DidPlaceBlock += (byPlayer, oldBlockId, blockSel, itemstack) => getPlayerQuests(byPlayer?.PlayerUID, sapi).ForEach(quest => quest.OnBlockPlaced(sapi.World.BlockAccessor.GetBlock(blockSel.Position)?.Code.Path));
+            sapi.Event.DidBreakBlock += (byPlayer, blockId, blockSel) => getPlayerQuests(byPlayer?.PlayerUID, sapi).ForEach(quest => quest.OnBlockBroken(sapi.World.GetBlock(blockId)?.Code.Path, new int[] { blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z }, byPlayer));
+            sapi.Event.DidPlaceBlock += (byPlayer, oldBlockId, blockSel, itemstack) => getPlayerQuests(byPlayer?.PlayerUID, sapi).ForEach(quest => quest.OnBlockPlaced(sapi.World.BlockAccessor.GetBlock(blockSel.Position)?.Code.Path, new int[] { blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z }, byPlayer));
         }
 
         public override void AssetsLoaded(ICoreAPI api)
@@ -121,7 +121,7 @@ namespace VsQuest
         {
             if (damageSource?.SourceEntity is EntityPlayer player)
             {
-                getPlayerQuests(player.PlayerUID, sapi).ForEach(quest => quest.OnEntityKilled(entity.Code.Path));
+                getPlayerQuests(player.PlayerUID, sapi).ForEach(quest => quest.OnEntityKilled(entity.Code.Path, player.Player));
             }
         }
 
