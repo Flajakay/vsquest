@@ -1,3 +1,4 @@
+using HarmonyLib;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -26,6 +27,9 @@ namespace VsQuest
         {
             this.api = api;
             base.Start(api);
+
+            var harmony = new HarmonyLib.Harmony("vsquest");
+            harmony.PatchAll();
 
             api.RegisterEntityBehaviorClass("questgiver", typeof(EntityBehaviorQuestGiver));
 
