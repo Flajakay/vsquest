@@ -102,10 +102,11 @@ namespace VsQuest
             sapi.Event.OnEntityDeath += (entity, dmgSource) => OnEntityDeath(entity, dmgSource, sapi);
             sapi.Event.DidBreakBlock += (byPlayer, blockId, blockSel) => getPlayerQuests(byPlayer?.PlayerUID, sapi).ForEach(quest => quest.OnBlockBroken(sapi.World.GetBlock(blockId)?.Code.Path, new int[] { blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z }, byPlayer));
             sapi.Event.DidPlaceBlock += (byPlayer, oldBlockId, blockSel, itemstack) => getPlayerQuests(byPlayer?.PlayerUID, sapi).ForEach(quest => quest.OnBlockPlaced(sapi.World.BlockAccessor.GetBlock(blockSel.Position)?.Code.Path, new int[] { blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z }, byPlayer));
-
+            
             sapi.ChatCommands.GetOrCreate("giveactionitem")
                 .WithDescription("Gives a player an action item defined in itemconfig.json.")
                 .RequiresPrivilege(Privilege.give)
+                .WithArgs(sapi.ChatCommands.Parsers.Word("itemId"), sapi.ChatCommands.Parsers.OptionalInt("amount", 1))
                 .HandleWith(OnGiveActionItemCommand);
         }
         private TextCommandResult OnGiveActionItemCommand(TextCommandCallingArgs args)
@@ -113,19 +114,15 @@ namespace VsQuest
             IServerPlayer player = (IServerPlayer)args.Caller.Player;
             if (player == null) return TextCommandResult.Error("This command can only be run by a player.");
 
+            string itemId = (string)args[0];
+            int amount = (int)args[1];
+
             var itemSystem = api.ModLoader.GetModSystem<ItemSystem>();
-            var itemId = args.RawArgs.PopWord();
-            if (itemId == null)
-            {
-                return TextCommandResult.Error("Usage: /giveactionitem <item_id> [amount]");
-            }
 
             if (!itemSystem.ActionItemRegistry.TryGetValue(itemId, out var actionItem))
             {
                 return TextCommandResult.Error($"Action item with ID '{itemId}' not found in itemconfig.json.");
             }
-
-            int amount = args.RawArgs.PopInt().GetValueOrDefault(1);
 
             CollectibleObject collectible = api.World.GetItem(new AssetLocation(actionItem.itemCode));
             if (collectible == null)
