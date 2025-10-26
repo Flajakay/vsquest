@@ -148,7 +148,8 @@
       {
         "code": "questgiver",
         "quests": [
-          "vsquestexample:testcommands"
+          "vsquestexample:testcommands",
+          "vsquestexample:quest1"
         ],
         "selectrandom": false,
         "selectrandomcount": 1

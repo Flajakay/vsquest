@@ -61,6 +61,16 @@
     "id": "vsquestexample:quest1",
     "cooldown": 20,
     "perPlayer": true,
+    "onAcceptedActions": [
+      {
+        "id": "addjournalentry",
+        "args": [
+          "vsquestexample:quest1-lore",
+          "A New Quest!",
+          "I have accepted a new quest to gather bony soil."
+        ]
+      }
+    ],
     "gatherObjectives": [
       {
         "validCodes": [
@@ -69,18 +79,24 @@
         "demand": 1
       }
     ],
-    "killObjectives": [
-      {
-        "validCodes": [
-          "drifter-normal"
-        ],
-        "demand": 2
-      }
-    ],
     "itemRewards": [
       {
         "itemCode": "game:gear-rusty",
-        "amount": 3
+        "amount": 1
+      }
+    ],
+    "actionRewards": [
+      {
+        "id": "addjournalentry",
+        "args": [
+          "vsquestexample:quest1-lore",
+          "A New Quest! 2",
+          "I have completed the quest and gave dude bony soil."
+        ]
+      },
+      {
+        "id": "giveitem",
+        "args": [ "game:gear-rusty", "1", "Special Rusty Gear", "This gear looks particularly special." ]
       }
     ]
   },
@@ -271,3 +287,5 @@
     ]
   }
 ]
+
+
