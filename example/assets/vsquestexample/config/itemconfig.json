@@ -1,0 +1,20 @@
+
+{
+    "actionItems": [
+      {
+        "id": "teleport-gear",
+        "itemCode": "game:gear-rusty",
+        "name": "Gear that never lies",
+        "description": "A strange gear that hums with power.",
+        "action": {
+          "id": "addjournalentry",
+          "args": [
+            "vsquestexample:aspecialkindofservice",
+            "When time is right",
+            "Testetestsetststet",
+            "OHHHHH?????"
+          ]
+        }
+      }
+    ]
+  }

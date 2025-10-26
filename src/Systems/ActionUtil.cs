@@ -13,7 +13,7 @@ namespace VsQuest
         {
         }
 
-        public static void SpawnEntities(ICoreServerAPI sapi, QuestMessage message, IPlayer byPlayer, string[] args)
+        public static void SpawnEntities(ICoreServerAPI sapi, QuestMessage message, IServerPlayer byPlayer, string[] args)
         {
             foreach (var code in args)
             {
@@ -28,7 +28,7 @@ namespace VsQuest
             }
         }
 
-        public static void SpawnAnyOfEntities(ICoreServerAPI sapi, QuestMessage message, IPlayer byPlayer, string[] args)
+        public static void SpawnAnyOfEntities(ICoreServerAPI sapi, QuestMessage message, IServerPlayer byPlayer, string[] args)
         {
             var code = args[sapi.World.Rand.Next(0, args.Length)];
             var type = sapi.World.GetEntityType(new AssetLocation(code));
@@ -41,7 +41,7 @@ namespace VsQuest
             sapi.World.SpawnEntity(entity);
         }
 
-        public static void RecruitEntity(ICoreServerAPI sapi, QuestMessage message, IPlayer byPlayer, string[] args)
+        public static void RecruitEntity(ICoreServerAPI sapi, QuestMessage message, IServerPlayer byPlayer, string[] args)
         {
             var recruit = sapi.World.GetEntityById(message.questGiverId);
             recruit.WatchedAttributes.SetDouble("employedSince", sapi.World.Calendar.TotalHours);
@@ -166,6 +166,41 @@ namespace VsQuest
             {
                 string command = string.Join(" ", args);
                 sapi.Network.GetChannel("vsquest").SendPacket(new ExecutePlayerCommandMessage() { Command = command }, byPlayer);
+            }
+        }
+
+        public static void GiveActionItem(ICoreServerAPI sapi, QuestMessage message, IServerPlayer byPlayer, string[] args)
+        {
+
+            sapi.Logger.Debug("Hello!");
+
+            if (args.Length < 1)
+            {
+                throw new QuestException("The 'giveactionitem' action requires at least 1 argument: actionItemId.");
+            }
+            var itemSystem = sapi.ModLoader.GetModSystem<ItemSystem>();
+            if (itemSystem.ActionItemRegistry.TryGetValue(args[0], out var actionItem))
+            {
+                sapi.Logger.Debug(actionItem.itemCode);
+
+                CollectibleObject collectible = sapi.World.GetItem(new AssetLocation(actionItem.itemCode));
+                if (collectible == null)
+                {
+                    collectible = sapi.World.GetBlock(new AssetLocation(actionItem.itemCode));
+                }
+                if (collectible != null)
+                {
+                    var stack = new ItemStack(collectible);
+                    sapi.Logger.Debug(actionItem.name, actionItem.description, actionItem.action.id);
+                    stack.Attributes.SetString("itemizerName", actionItem.name);
+                    stack.Attributes.SetString("itemizerDesc", actionItem.description);
+                    stack.Attributes.SetString("vsquest:actionId", actionItem.action.id);
+                    (stack.Attributes as Vintagestory.API.Datastructures.TreeAttribute)?.SetStringArray("vsquest:actionArgs", actionItem.action.args ?? new string[0]);
+                    if (!byPlayer.InventoryManager.TryGiveItemstack(stack))
+                    {
+                        sapi.World.SpawnItemEntity(stack, byPlayer.Entity.ServerPos.XYZ);
+                    }
+                }
             }
         }
     }

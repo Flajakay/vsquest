@@ -95,8 +95,8 @@
         ]
       },
       {
-        "id": "giveitem",
-        "args": [ "game:gear-rusty", "1", "Special Rusty Gear", "This gear looks particularly special." ]
+        "id": "giveactionitem",
+        "args": [ "teleport-gear" ]
       }
     ]
   },

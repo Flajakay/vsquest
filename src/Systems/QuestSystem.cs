@@ -20,13 +20,16 @@ namespace VsQuest
         public Dictionary<string, ActiveActionObjective> ActionObjectiveRegistry { get; private set; } = new Dictionary<string, ActiveActionObjective>();
         private ConcurrentDictionary<string, List<ActiveQuest>> playerQuests = new ConcurrentDictionary<string, List<ActiveQuest>>();
         public QuestConfig Config { get; set; }
+        private ICoreAPI api;
         public override void Start(ICoreAPI api)
         {
+            this.api = api;
             base.Start(api);
 
             api.RegisterEntityBehaviorClass("questgiver", typeof(EntityBehaviorQuestGiver));
 
             api.RegisterItemClass("ItemDebugTool", typeof(ItemDebugTool));
+
 
             ActionObjectiveRegistry.Add("plantflowers", new NearbyFlowersActionObjective());
             ActionObjectiveRegistry.Add("hasAttribute", new PlayerHasAttributeActionObjective());
@@ -92,13 +95,63 @@ namespace VsQuest
             ActionRegistry.Add("removetraits", ActionUtil.RemoveTraits);
             ActionRegistry.Add("servercommand", ActionUtil.ServerCommand);
             ActionRegistry.Add("playercommand", ActionUtil.PlayerCommand);
+            ActionRegistry.Add("giveactionitem", ActionUtil.GiveActionItem);
 
             sapi.Event.GameWorldSave += () => OnSave(sapi);
             sapi.Event.PlayerDisconnect += player => OnDisconnect(player, sapi);
             sapi.Event.OnEntityDeath += (entity, dmgSource) => OnEntityDeath(entity, dmgSource, sapi);
             sapi.Event.DidBreakBlock += (byPlayer, blockId, blockSel) => getPlayerQuests(byPlayer?.PlayerUID, sapi).ForEach(quest => quest.OnBlockBroken(sapi.World.GetBlock(blockId)?.Code.Path, new int[] { blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z }, byPlayer));
             sapi.Event.DidPlaceBlock += (byPlayer, oldBlockId, blockSel, itemstack) => getPlayerQuests(byPlayer?.PlayerUID, sapi).ForEach(quest => quest.OnBlockPlaced(sapi.World.BlockAccessor.GetBlock(blockSel.Position)?.Code.Path, new int[] { blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z }, byPlayer));
+
+            sapi.ChatCommands.GetOrCreate("giveactionitem")
+                .WithDescription("Gives a player an action item defined in itemconfig.json.")
+                .RequiresPrivilege(Privilege.give)
+                .HandleWith(OnGiveActionItemCommand);
         }
+        private TextCommandResult OnGiveActionItemCommand(TextCommandCallingArgs args)
+        {
+            IServerPlayer player = (IServerPlayer)args.Caller.Player;
+            if (player == null) return TextCommandResult.Error("This command can only be run by a player.");
+
+            var itemSystem = api.ModLoader.GetModSystem<ItemSystem>();
+            var itemId = args.RawArgs.PopWord();
+            if (itemId == null)
+            {
+                return TextCommandResult.Error("Usage: /giveactionitem <item_id> [amount]");
+            }
+
+            if (!itemSystem.ActionItemRegistry.TryGetValue(itemId, out var actionItem))
+            {
+                return TextCommandResult.Error($"Action item with ID '{itemId}' not found in itemconfig.json.");
+            }
+
+            int amount = args.RawArgs.PopInt().GetValueOrDefault(1);
+
+            CollectibleObject collectible = api.World.GetItem(new AssetLocation(actionItem.itemCode));
+            if (collectible == null)
+            {
+                collectible = api.World.GetBlock(new AssetLocation(actionItem.itemCode));
+            }
+
+            if (collectible == null)
+            {
+                return TextCommandResult.Error($"Could not find base item/block with code '{actionItem.itemCode}'.");
+            }
+
+            var stack = new ItemStack(collectible, amount);
+            stack.Attributes.SetString("itemizerName", actionItem.name);
+            stack.Attributes.SetString("itemizerDesc", actionItem.description);
+            stack.Attributes.SetString("vsquest:actionId", actionItem.action.id);
+            (stack.Attributes as Vintagestory.API.Datastructures.TreeAttribute)?.SetStringArray("vsquest:actionArgs", actionItem.action.args ?? new string[0]);
+
+            if (!player.InventoryManager.TryGiveItemstack(stack))
+            {
+                api.World.SpawnItemEntity(stack, player.Entity.ServerPos.XYZ);
+            }
+
+            return TextCommandResult.Success($"Successfully gave {amount}x {actionItem.name}.");
+        }
+        
 
         public override void AssetsLoaded(ICoreAPI api)
         {
