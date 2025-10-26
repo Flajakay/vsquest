@@ -5,14 +5,13 @@
     "side": "universal",
     "authors": [
         "G3rste",
-        "Zwetsche"
+        "Zwetsche",
+		"Flajakay"
     ],
     "description": "Mod that focuses on implementing a Quest System.",
     "version": "3.0.0",
     "dependencies": {
         "game": "1.21.0",
-        "VSSurvivalMod": "1.21.0",
-        "VSEssentials": "1.21.0",
-        "itemizer": "1.0.0"
+        "itemizer": "1.1.1"
     }
 }

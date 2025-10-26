@@ -27,7 +27,7 @@ namespace VsQuest
             var modJournal = sapi.ModLoader.GetModSystem<ModJournal>();
             if (modJournal == null)
             {
-                throw new QuestException("ModJournal system not found. Make sure VSSurvivalMod is enabled.");
+                throw new QuestException("ModJournal system not found.");
             }
 
             var loreCode = args[0];
