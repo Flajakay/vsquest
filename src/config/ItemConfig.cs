@@ -14,7 +14,7 @@ namespace VsQuest
         public string itemCode { get; set; }
         public string name { get; set; }
         public string description { get; set; }
-        public ItemAction action { get; set; }
+        public List<ItemAction> actions { get; set; } = new List<ItemAction>();
     }
 
     public class ItemAction

@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -138,8 +139,7 @@ namespace VsQuest
             var stack = new ItemStack(collectible, amount);
             stack.Attributes.SetString("itemizerName", actionItem.name);
             stack.Attributes.SetString("itemizerDesc", actionItem.description);
-            stack.Attributes.SetString("vsquest:actionId", actionItem.action.id);
-            (stack.Attributes as Vintagestory.API.Datastructures.TreeAttribute)?.SetStringArray("vsquest:actionArgs", actionItem.action.args ?? new string[0]);
+            stack.Attributes.SetString("vsquest:actions", JsonConvert.SerializeObject(actionItem.actions));
 
             if (!player.InventoryManager.TryGiveItemstack(stack))
             {

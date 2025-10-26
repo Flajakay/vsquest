@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using ProtoBuf;
 using Vintagestory.API.Datastructures;
 using System.Collections.Generic;
@@ -67,9 +68,9 @@ namespace VsQuest
             if (slot?.Itemstack == null) return;
 
             var attributes = slot.Itemstack.Attributes;
-            var actionId = attributes.GetString("vsquest:actionId");
+            var actions = attributes.GetString("vsquest:actions");
 
-            if (actionId != null)
+            if (actions != null)
             {
                 args.Handled = true;
                 clientChannel.SendPacket(new ExecuteActionItemPacket());
@@ -82,13 +83,18 @@ namespace VsQuest
             if (slot?.Itemstack == null) return;
 
             var attributes = slot.Itemstack.Attributes;
-            var actionId = attributes.GetString("vsquest:actionId");
-            var actionArgs = (attributes as TreeAttribute)?.GetStringArray("vsquest:actionArgs");
+            var actionsJson = attributes.GetString("vsquest:actions");
+            if (actionsJson == null) return;
 
-            if (actionId != null && questSystem.ActionRegistry.TryGetValue(actionId, out var action))
+            var actions = JsonConvert.DeserializeObject<List<ItemAction>>(actionsJson);
+
+            foreach (var action in actions)
             {
-                var message = new QuestAcceptedMessage { questGiverId = fromPlayer.Entity.EntityId, questId = "item-action" };
-                action.Invoke(sapi, message, fromPlayer, actionArgs);
+                if (questSystem.ActionRegistry.TryGetValue(action.id, out var registeredAction))
+                {
+                    var message = new QuestAcceptedMessage { questGiverId = fromPlayer.Entity.EntityId, questId = "item-action" };
+                    registeredAction.Invoke(sapi, message, fromPlayer, action.args);
+                }
             }
         }
     }

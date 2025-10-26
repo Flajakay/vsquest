@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using Vintagestory.API.Common;
@@ -191,11 +192,9 @@ namespace VsQuest
                 if (collectible != null)
                 {
                     var stack = new ItemStack(collectible);
-                    sapi.Logger.Debug(actionItem.name, actionItem.description, actionItem.action.id);
                     stack.Attributes.SetString("itemizerName", actionItem.name);
                     stack.Attributes.SetString("itemizerDesc", actionItem.description);
-                    stack.Attributes.SetString("vsquest:actionId", actionItem.action.id);
-                    (stack.Attributes as Vintagestory.API.Datastructures.TreeAttribute)?.SetStringArray("vsquest:actionArgs", actionItem.action.args ?? new string[0]);
+                    stack.Attributes.SetString("vsquest:actions", JsonConvert.SerializeObject(actionItem.actions));
                     if (!byPlayer.InventoryManager.TryGiveItemstack(stack))
                     {
                         sapi.World.SpawnItemEntity(stack, byPlayer.Entity.ServerPos.XYZ);
