@@ -1,6 +1,8 @@
 # VS Quest
 
-Die Mod aims to add Quests to Vintage Story.<br>
+It is a fork of the original mod with the addition of functionality required by the alegacy.online server. But, of course, you can use it as well.
+
+Mod aims to add Quests to Vintage Story.<br>
 It should also enable you to easily add your own quests to the game as well as your own questgivers.<br>
 <br>
 If you want to use this as a base for creating your own quests, please have a look at this **[example](example)**. The most important aspects to take care of are the **[quests.json](example/assets/vsquestexample/config/quests.json)** as well as the **[questgiver behavior](example/assets/vsquestexample/entities/questgiver.json#L229-L235)**<br><br>
@@ -72,6 +74,24 @@ Every quest in the config/quests/*.json can have the following attributes:
       * args: ["say", "hello"] => executes "/say hello" from the server console.
     * playercommand: executes a command from the player's perspective.
       * args: ["emote", "wave"] => executes "/emote wave" as the player.
+    * addjournalentry: adds a new entry to the player's journal.
+      * args: ["loreCode", "title", "chapter1", "chapter2", ...] => creates a journal entry with the given lore code, title, and chapters.
+    * giveactionitem: gives a player an action item defined in itemconfig.json.
+      * args: ["itemId"] => gives the player the action item with the specified ID.
+
+### Action Items
+
+Action items are special items that can trigger a series of actions when used. They are defined in itemconfig.json
+
+Each action item has the following properties:
+* **id**: a unique id for the action item.
+* **itemCode**: the code of the base item.
+* **name**: the name of the action item.
+* **description**: the description of the action item.
+* **actions**: a list of actions to be executed when the item is used. Each action has an `id` and `args`, just like in quests.
+
+
+To give an action item to a player, you can use the `giveactionitem` action in a quest or the `/giveactionitem` command.
 
 To convert an entity to a questgiver it needs the questgiver behavior:
 * **quests**: list of quests the questgiver offers

@@ -31,12 +31,7 @@
         "validCodes": [
           "cob-none"
         ],
-        "demand": 2,
-        "positions": [
-          "67,111,-17",
-          "67,111,-16"
-        ],
-        "removeAfterFinished": true
+        "demand": 2
       }
     ],
     "killObjectives": [],
