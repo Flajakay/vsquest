@@ -3,8 +3,9 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 using System.Collections.Generic;
+using VsQuest;
 
-namespace VsQuest
+namespace vsquest.src.Systems.Actions
 {
     public class JournalActionSystem : ModSystem
     {

@@ -26,14 +26,16 @@
         ]
       }
     ],
-    "blockPlaceObjectives": [
+    "interactObjectives": [
       {
         "validCodes": [
           "cob-none"
         ],
-        "demand": 2
+        "demand": 1,
+        "positions": [ "100, 65, 200" ]
       }
     ],
+
     "killObjectives": [],
     "itemRewards": [
       {

@@ -11,6 +11,7 @@ using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
+using vsquest.src.Systems.Actions;
 
 namespace VsQuest
 {
@@ -38,6 +39,7 @@ namespace VsQuest
 
             ActionObjectiveRegistry.Add("plantflowers", new NearbyFlowersActionObjective());
             ActionObjectiveRegistry.Add("hasAttribute", new PlayerHasAttributeActionObjective());
+            ActionObjectiveRegistry.Add("interactat", new InteractAtCoordinateObjective());
 
             try
             {
@@ -107,7 +109,7 @@ namespace VsQuest
             sapi.Event.OnEntityDeath += (entity, dmgSource) => OnEntityDeath(entity, dmgSource, sapi);
             sapi.Event.DidBreakBlock += (byPlayer, blockId, blockSel) => getPlayerQuests(byPlayer?.PlayerUID, sapi).ForEach(quest => quest.OnBlockBroken(sapi.World.GetBlock(blockId)?.Code.Path, new int[] { blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z }, byPlayer));
             sapi.Event.DidPlaceBlock += (byPlayer, oldBlockId, blockSel, itemstack) => getPlayerQuests(byPlayer?.PlayerUID, sapi).ForEach(quest => quest.OnBlockPlaced(sapi.World.BlockAccessor.GetBlock(blockSel.Position)?.Code.Path, new int[] { blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z }, byPlayer));
-            
+
             sapi.ChatCommands.GetOrCreate("giveactionitem")
                 .WithDescription("Gives a player an action item defined in itemconfig.json.")
                 .RequiresPrivilege(Privilege.give)

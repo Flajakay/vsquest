@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Win32.SafeHandles;
 using ProtoBuf;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -15,6 +16,7 @@ namespace VsQuest
         public List<EventTracker> killTrackers { get; set; } = new List<EventTracker>();
         public List<EventTracker> blockPlaceTrackers { get; set; } = new List<EventTracker>();
         public List<EventTracker> blockBreakTrackers { get; set; } = new List<EventTracker>();
+        public List<EventTracker> interactTrackers { get; set; } = new List<EventTracker>();
         public void OnEntityKilled(string entityCode, IPlayer byPlayer)
         {
             var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
@@ -34,6 +36,58 @@ namespace VsQuest
             var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
             var quest = questSystem.QuestRegistry[questId];
             checkEventTrackers(blockBreakTrackers, blockCode, position, quest.blockBreakObjectives);
+        }
+
+        public void OnBlockUsed(string blockCode, int[] position, IPlayer byPlayer)
+        {
+
+
+            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var quest = questSystem.QuestRegistry[questId];
+            checkEventTrackers(interactTrackers, blockCode, position, quest.interactObjectives);
+            
+            // Handle action objectives that are related to interacting at specific coordinates
+            // Check if any action objectives are of type "interactat" and match the current position
+            for (int i = 0; i < quest.actionObjectives.Count; i++)
+            {
+                var actionObj = quest.actionObjectives[i];
+                if (actionObj.id == "interactat" && actionObj.args.Length >= 1)
+                {
+                    string coordString = actionObj.args[0];
+                    string[] coords = coordString.Split(',');
+                    if (coords.Length == 3)
+                    {
+                        int targetX, targetY, targetZ;
+                        if (int.TryParse(coords[0], out targetX) && 
+                            int.TryParse(coords[1], out targetY) && 
+                            int.TryParse(coords[2], out targetZ))
+                        {
+                            // Check if the current interaction matches the target position
+                            if (targetX == position[0] && targetY == position[1] && targetZ == position[2])
+                            {
+                                // Mark this interaction as completed by updating player attributes
+                                string interactionKey = $"interactat_{targetX}_{targetY}_{targetZ}";
+                                string completedInteractions = byPlayer.Entity.WatchedAttributes.GetString("completedInteractions", "");
+                                string[] completed = completedInteractions.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+                                
+                                // If not already marked as completed, add it
+                                if (!completed.Contains(interactionKey))
+                                {
+                                    if (!string.IsNullOrEmpty(completedInteractions))
+                                    {
+                                        completedInteractions += "," + interactionKey;
+                                    }
+                                    else
+                                    {
+                                        completedInteractions = interactionKey;
+                                    }
+                                    byPlayer.Entity.WatchedAttributes.SetString("completedInteractions", completedInteractions);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void checkEventTrackers(List<EventTracker> trackers, string code, int[] position, List<Objective> objectives)
@@ -123,6 +177,10 @@ namespace VsQuest
             {
                 killTrackers.Add(new EventTracker());
             }
+            while (interactTrackers.Count < quest.interactObjectives.Count)
+            {
+                interactTrackers.Add(new EventTracker());
+            }
 
             for (int i = 0; i < quest.blockPlaceObjectives.Count; i++)
             {
@@ -138,6 +196,17 @@ namespace VsQuest
             for (int i = 0; i < quest.blockBreakObjectives.Count; i++)
             {
                 completable &= quest.blockBreakObjectives[i].demand <= blockBreakTrackers[i].count;
+            }
+            for (int i = 0; i < quest.interactObjectives.Count; i++)
+            {
+                if (quest.interactObjectives[i].positions != null && quest.interactObjectives[i].positions.Count > 0)
+                {
+                    completable &= quest.interactObjectives[i].positions.Count <= interactTrackers[i].placedPositions.Count;
+                }
+                else
+                {
+                    completable &= quest.interactObjectives[i].demand <= interactTrackers[i].count;
+                }
             }
             for (int i = 0; i < quest.killObjectives.Count; i++)
             {
@@ -179,7 +248,7 @@ namespace VsQuest
         public List<int> trackerProgress()
         {
             var result = new List<int>();
-            foreach (var trackerList in new List<EventTracker>[] { killTrackers, blockPlaceTrackers, blockBreakTrackers })
+            foreach (var trackerList in new List<EventTracker>[] { killTrackers, blockPlaceTrackers, blockBreakTrackers, interactTrackers })
             {
                 if (trackerList != null)
                 {

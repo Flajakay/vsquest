@@ -13,6 +13,7 @@ namespace VsQuest
         public List<Objective> killObjectives { get; set; } = new List<Objective>();
         public List<Objective> blockPlaceObjectives { get; set; } = new List<Objective>();
         public List<Objective> blockBreakObjectives { get; set; } = new List<Objective>();
+        public List<Objective> interactObjectives { get; set; } = new List<Objective>();
         public List<ActionWithArgs> actionObjectives { get; set; } = new List<ActionWithArgs>();
         public List<ItemReward> itemRewards { get; set; } = new List<ItemReward>();
         public RandomItemReward randomItemRewards { get; set; } = new RandomItemReward();
