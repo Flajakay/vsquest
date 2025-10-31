@@ -1,39 +1,29 @@
 using HarmonyLib;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
-using Vintagestory.API.Server;
-using Vintagestory.API.MathTools;
 
 namespace VsQuest.Harmony
 {
     [HarmonyPatch(typeof(Block), "OnBlockInteractStart")]
-    public class Block_OnBlockInteractStart_Patch
+    public class BlockInteractPatch
     {
-        public static void Postfix(Block __instance, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel)
+        public static void Postfix(Block __instance, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, bool __result)
         {
-            // Only proceed if this is server-side and we have a valid player
-            if (world.Side != EnumAppSide.Server || byPlayer == null)
+            if (world.Api.Side != EnumAppSide.Client || blockSel == null) return;
+
+            if (__result)
             {
                 return;
             }
 
-            var sapi = world.Api as ICoreServerAPI;
-            if (sapi == null) return;
+            var capi = world.Api as ICoreClientAPI;
+            if (capi == null) return;
 
-            var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
-            if (questSystem == null) return;
-
-            sapi.Logger.Debug("Interacted with block!");
-
-            // Call the existing OnBlockUsed method in all active quests for this player
-            var activeQuests = questSystem.getPlayerQuests(byPlayer.PlayerUID, sapi);
-            foreach (var quest in activeQuests)
+            capi.Network.GetChannel("vsquest").SendPacket(new VanillaBlockInteractMessage()
             {
-                // Get the block code and position for the interaction
-                string blockCode = __instance.Code.Path;
-                int[] position = new int[] { blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z };
-                sapi.Logger.Debug(blockSel.Position.X.ToString() + " " + blockSel.Position.Y + " " + blockSel.Position.Z);
-                quest.OnBlockUsed(blockCode, position, byPlayer);
-            }
+                Position = blockSel.Position,
+                BlockCode = __instance.Code.Path
+            });
         }
     }
 }

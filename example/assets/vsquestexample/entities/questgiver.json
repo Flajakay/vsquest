@@ -87,15 +87,7 @@
         "code": "nametag",
         "showtagonlywhentargeted": true,
         "selectFromRandomName": [
-          "Aphid",
-          "Erik",
-          "Adachi",
-          "Farhad",
-          "Pegalesharro",
-          "Floyd",
-          "Temper",
-          "En Repos",
-          "Zadak"
+          "Aphid"
         ]
       },
       {
@@ -148,7 +140,6 @@
       {
         "code": "questgiver",
         "quests": [
-          "vsquestexample:testcommands",
           "vsquestexample:quest1"
         ],
         "selectrandom": false,

@@ -11,6 +11,7 @@ using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
+using Vintagestory.API.MathTools;
 using vsquest.src.Systems.Actions;
 
 namespace VsQuest
@@ -73,7 +74,9 @@ namespace VsQuest
                 .RegisterMessageType<QuestAcceptedMessage>()
                 .RegisterMessageType<QuestCompletedMessage>()
                 .RegisterMessageType<QuestInfoMessage>().SetMessageHandler<QuestInfoMessage>(message => OnQuestInfoMessage(message, capi))
-                .RegisterMessageType<ExecutePlayerCommandMessage>().SetMessageHandler<ExecutePlayerCommandMessage>(message => OnExecutePlayerCommand(message, capi));
+                .RegisterMessageType<ExecutePlayerCommandMessage>().SetMessageHandler<ExecutePlayerCommandMessage>(message => OnExecutePlayerCommand(message, capi))
+                .RegisterMessageType<VanillaBlockInteractMessage>()
+                .RegisterMessageType<ShowNotificationMessage>().SetMessageHandler<ShowNotificationMessage>(message => capi.ShowChatMessage(message.Notification));
         }
 
         public override void StartServerSide(ICoreServerAPI sapi)
@@ -84,7 +87,9 @@ namespace VsQuest
                 .RegisterMessageType<QuestAcceptedMessage>().SetMessageHandler<QuestAcceptedMessage>((player, message) => OnQuestAccepted(player, message, sapi))
                 .RegisterMessageType<QuestCompletedMessage>().SetMessageHandler<QuestCompletedMessage>((player, message) => OnQuestCompleted(player, message, sapi))
                 .RegisterMessageType<QuestInfoMessage>()
-                .RegisterMessageType<ExecutePlayerCommandMessage>();
+                .RegisterMessageType<ExecutePlayerCommandMessage>()
+                .RegisterMessageType<VanillaBlockInteractMessage>().SetMessageHandler<VanillaBlockInteractMessage>((player, message) => OnVanillaBlockInteract(player, message, sapi))
+                .RegisterMessageType<ShowNotificationMessage>();
 
             ActionRegistry.Add("despawnquestgiver", (api, message, byPlayer, args) => api.World.RegisterCallback(dt => api.World.GetEntityById(message.questGiverId).Die(EnumDespawnReason.Removed), int.Parse(args[0])));
             ActionRegistry.Add("playsound", (api, message, byPlayer, args) => api.World.PlaySoundFor(new AssetLocation(args[0]), byPlayer));
@@ -367,6 +372,15 @@ namespace VsQuest
                 capi.SendChatMessage(command);
             }
         }
+
+
+
+        private void OnVanillaBlockInteract(IServerPlayer player, VanillaBlockInteractMessage message, ICoreServerAPI sapi)
+        {
+            //sapi.Logger.Debug("Message recieved" + message.Position.ToString());
+            int[] position = new int[] { message.Position.X, message.Position.Y, message.Position.Z };
+            getPlayerQuests(player?.PlayerUID, sapi).ForEach(quest => quest.OnBlockUsed(message.BlockCode, position, player, sapi));
+        }
     }
 
     public class QuestConfig
@@ -407,5 +421,11 @@ namespace VsQuest
     {
         [ProtoMember(1)]
         public string Command { get; set; }
+    }
+
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
+    public class ShowNotificationMessage
+    {
+        public string Notification { get; set; }
     }
 }

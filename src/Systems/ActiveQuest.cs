@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32.SafeHandles;
 using ProtoBuf;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
+using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
 
 namespace VsQuest
 {
@@ -38,16 +41,11 @@ namespace VsQuest
             checkEventTrackers(blockBreakTrackers, blockCode, position, quest.blockBreakObjectives);
         }
 
-        public void OnBlockUsed(string blockCode, int[] position, IPlayer byPlayer)
+        public void OnBlockUsed(string blockCode, int[] position, IPlayer byPlayer, ICoreServerAPI sapi)
         {
-
-
             var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
             var quest = questSystem.QuestRegistry[questId];
             checkEventTrackers(interactTrackers, blockCode, position, quest.interactObjectives);
-            
-            // Handle action objectives that are related to interacting at specific coordinates
-            // Check if any action objectives are of type "interactat" and match the current position
             for (int i = 0; i < quest.actionObjectives.Count; i++)
             {
                 var actionObj = quest.actionObjectives[i];
@@ -62,15 +60,12 @@ namespace VsQuest
                             int.TryParse(coords[1], out targetY) && 
                             int.TryParse(coords[2], out targetZ))
                         {
-                            // Check if the current interaction matches the target position
                             if (targetX == position[0] && targetY == position[1] && targetZ == position[2])
                             {
-                                // Mark this interaction as completed by updating player attributes
                                 string interactionKey = $"interactat_{targetX}_{targetY}_{targetZ}";
                                 string completedInteractions = byPlayer.Entity.WatchedAttributes.GetString("completedInteractions", "");
                                 string[] completed = completedInteractions.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                                 
-                                // If not already marked as completed, add it
                                 if (!completed.Contains(interactionKey))
                                 {
                                     if (!string.IsNullOrEmpty(completedInteractions))
@@ -82,6 +77,23 @@ namespace VsQuest
                                         completedInteractions = interactionKey;
                                     }
                                     byPlayer.Entity.WatchedAttributes.SetString("completedInteractions", completedInteractions);
+
+                                    if (actionObj.args.Length > 1 && !string.IsNullOrEmpty(actionObj.args[1]))
+                                    {
+                                        var serverPlayer = byPlayer as IServerPlayer;
+                                        if (serverPlayer != null)
+                                        {
+                                            sapi.Network.GetChannel("vsquest").SendPacket(new ShowNotificationMessage()
+                                            {
+                                                Notification = actionObj.args[1]
+                                            }, serverPlayer);
+                                        }
+                                    }
+
+                                    if (actionObj.args.Length > 2 && !string.IsNullOrEmpty(actionObj.args[2]))
+                                    {
+                                        sapi.World.PlaySoundFor(new AssetLocation(actionObj.args[2]), byPlayer);
+                                    }
                                 }
                             }
                         }
@@ -242,6 +254,32 @@ namespace VsQuest
                         byPlayer.Entity.World.BlockAccessor.SetBlock(0, new Vintagestory.API.MathTools.BlockPos(pos[0], pos[1], pos[2]));
                     }
                 }
+            }
+
+            string completedInteractions = byPlayer.Entity.WatchedAttributes.GetString("completedInteractions", "");
+            if (!string.IsNullOrEmpty(completedInteractions))
+            {
+                List<string> completed = completedInteractions.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                foreach (var actionObj in quest.actionObjectives)
+                {
+                    if (actionObj.id == "interactat" && actionObj.args.Length >= 1)
+                    {
+                        string coordString = actionObj.args[0];
+                        string[] coords = coordString.Split(',');
+                        if (coords.Length == 3)
+                        {
+                            if (int.TryParse(coords[0], out int targetX) &&
+                                int.TryParse(coords[1], out int targetY) &&
+                                int.TryParse(coords[2], out int targetZ))
+                            {
+                                string interactionKey = $"interactat_{targetX}_{targetY}_{targetZ}";
+                                completed.Remove(interactionKey);
+                            }
+                        }
+                    }
+                }
+                byPlayer.Entity.WatchedAttributes.SetString("completedInteractions", string.Join(",", completed));
             }
         }
 

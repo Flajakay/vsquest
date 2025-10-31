@@ -20,6 +20,11 @@ Every quest in the config/quests/*.json can have the following attributes:
 * **actionObjectives**: list of objectives that rely on custom code
   * **id**: unique id of the action objective to check
   * **args**: arguments for the function called by the action objective, all supplied as strings
+  * **currently available action objectives**:
+    * **interactat**: requires the player to right-click a block at a specific coordinate.
+      * `args[0]`: The coordinates of the target block, formatted as a string: `"x,y,z"`.
+      * `args[1]`: (Optional) A message to display to the player in chat upon successful interaction.
+      * `args[2]`: (Optional) A sound to play upon successful interaction. The path should be a valid sound asset location (e.g., `"game:sounds/voice/saxophone"`).
 * **killObjectives**: list of entities the player has to defeat
   * **validCodes**: list of accepted entity codes
   * **demand**: needed amount
